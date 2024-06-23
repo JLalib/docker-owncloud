@@ -1,0 +1,49 @@
+version: '3.3'
+
+services:
+
+  owncloud:
+    image: owncloud/server:latest
+    container_name: owncloud_server
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - redis
+    environment:
+      - OWNCLOUD_DOMAIN=IP-O-DOMINIO:8080
+      - OWNCLOUD_TRUSTED_DOMAINS=IP-O-DOMINIO
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=owncloud
+      - OWNCLOUD_DB_USERNAME=USUARIO-DB
+      - OWNCLOUD_DB_PASSWORD=PASSWORD-DB
+      - OWNCLOUD_DB_HOST=db
+      - OWNCLOUD_ADMIN_USERNAME=USUARIO-OWNCLOUD
+      - OWNCLOUD_ADMIN_PASSWORD=PASSWORD-OWNCLOUD
+      - OWNCLOUD_MYSQL_UTF8MB4=true
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=redis
+    volumes:
+      - ./files:/mnt/data
+
+  db:
+    image: mariadb:latest
+    container_name: owncloud_mariadb
+    restart: always
+    environment:
+      - MYSQL_DATABASE=USUARIO-DB
+      - MYSQL_ROOT_PASSWORD=PASSWORD-DB
+      - MYSQL_USER=USUARIO-DB
+      - MYSQL_PASSWORD=PASSWORD-DB
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    volumes:
+          - ./mysql:/var/lib/mysql
+  redis:
+    image: redis:latest
+    container_name: owncloud_redis
+    restart: always
+    command: ["--databases", "1"]
+    volumes:
+      - ./redis:/data
+
